@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}首页-知乎{% endblock %}
+{% block page_content %}
+<div class="main clearfix">
+  <div class="main-content">
+    <div class="main-content-inner">
+      <div id="home-list-title" class="zg-section">
+        <i class="icon icon-feedlist"></i>
+        最新动态
+      </div>
+      <div class="main-feed-con">
+        <div id="home-feed-list" class="general-list clearfix">
+          {% for feed in feeds %}
+          <div class="feed-item">
+            <div class="avatar">
+              <a class="item-link-avatar" target="_blank" href="{{ url_for('.profile', username=current_user.username) }}">
+                <img class="item-image-avatar" src="{{ url_for('static', filename=feed.user.avatar_file) }}" />
+              </a>
+            </div>
+            <div class="feed-main">
+              <div class="feed-source">
+                <a href="{{ url_for('.profile', username=feed.user.username) }}" target="_blank">{{ feed.user.nickname }}</a>
+                {% if feed.action == 'ask_question' %}
+                提出一个问题
+                {% elif feed.action == 'follow_question' %}
+                关注该问题
+                {% elif feed.action == 'voteup_answer' %}
+                赞同了该回答
+                {% elif feed.action == 'answer_question' %}
+                回答了该问题
+                {% endif %}
+                <span class="time">{{ feed.timestamp.strftime('%Y-%m-%d') }}</span>
+              </div>
+              <div class="feed-content">
+                <div class="feed-content-title">
+                  <a class="question_link" target="_blank" href="{{ url_for('.question_page', id=feed.question.id) }}">{{ feed.question.title }}</a>
+                </div>
+                <div class="expandable entry-body">
+                  {% if (feed.action == 'voteup_answer') or (feed.action == 'answer_question') %}
+                  <div class="item-vote">
+                    <a class="item-vote-count" href="#">{{ feed.answer.agrees_count }}</a>
+                  </div>
+                  <div class="item-answer-author-info">
+                    <a class="author-link" href="{{ url_for('.profile', username=feed.answer.author.username) }}">{{ feed.answer.author.nickname }}</a>
+                  </div>
+                  <div class="answer-summary">
+                    {{ feed.answer.get_summary() }}
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="feed-meta">
+                  <div class="item-meta">
+                    <div class="meta-panel">
+                      <a class="meta-item follow" href="#">
+                      关注问题
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main-sidebar">
+  </div>
+</div>
+{% include '_questionForm.html' %}
+{% endblock %}

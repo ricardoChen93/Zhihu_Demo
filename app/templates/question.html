@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% block title %}{{ question.title }}{% endblock %}
+{% block page_content %}
+<div class="main clearfix with-votebar">
+  <div class="main-content">
+    <div class="main-content-inner">
+      <div class="tag-editor"></div>
+      <div id="question-title" class="editable-status-normal">
+        <div class="item-title">
+          <span class="editable-content" style="">
+            {{ question.title }}
+            <a class="edit-button" href="javascript:;" name="edit">
+              修改
+            </a>
+          </span>
+        </div>
+        <div class="editable-editor-wrap clearfix" style="display: none;">
+          <div class="editable-editor-outer">
+            <div class="editable-editor-inner form-text-input">
+              <textarea id="edit-question-title">{{ question.title }}</textarea>
+            </div>
+          </div>
+          <div class="editable-require-reason-wrap" style="padding: 10px 0 0;">
+            <select>
+              <option value="none">请选择一个修改理由...</option>
+              <option value="精简文字描述">精简文字描述</option>
+              <option value="补充必要的信息">补充必要的信息</option>
+              <option value="改进标点或格式">改进标点或格式</option>
+              <option value="other">其他</option>
+            </select>
+            <span class="gray-normal"> 必选</span>
+          </div>
+          <div class="command">
+            <a class="command-cancel" href="javascript:;" name="cancel">取消</a>
+            <a class="btn-blue" href="javascript:;" name="save">保存</a>
+          </div>
+        </div>
+      </div>
+      <div id="question-detail" class="editable-status-normal">
+        <div class="editable-content" style="">
+          {% if question.content == '' %}
+          <a href="javascript:;" name="edit">
+            写补充说明
+          </a>
+          {% else %}
+          {% if question.content_html %}
+            {{ question.content_html | safe }}
+          {% else %}
+            {{ question.content }}
+          {% endif %}
+          <a class="edit-button" href="javascript:;" name="edit">修改</a>
+          {% endif %}
+        </div>
+        <div class="editable-editor-wrap" style="display: none;">
+          <div class="editable-editor-outer">
+            <textarea id="edit-question-content">{{ question.content }}</textarea>
+          </div>
+          <div class="editable-require-reason-wrap" style="padding: 10px 0 0;">
+            <select>
+              <option value="none">请选择一个修改理由...</option>
+              <option value="精简文字描述">精简文字描述</option>
+              <option value="补充必要的信息">补充必要的信息</option>
+              <option value="改进标点或格式">改进标点或格式</option>
+              <option value="other">其他</option>
+            </select>
+            <span class="gray-normal"> 必选</span>
+          </div>
+          <div class="command">
+            <a class="command-cancel" href="javascript:;" name="cancel">取消</a>
+            <a class="btn-blue" href="javascript:;" name="save">保存</a>
+          </div>          
+        </div>
+      </div>
+      <div id="question-meta" class="item-meta">
+        <div class="meta-panel">
+        <a class="toggle-comment meta-item" data-toggle="collapse" href="#questionComment">
+          <i class="icon-comment"></i>
+          {% if question.comments_count() == 0 %}
+          添加评论
+          {% else %}
+          {{ question.comments_count() }}条评论
+          {% endif %}
+        </a>
+        </div>
+        <div class="collapse panel-container" id="questionComment">
+          <div class="comment-box">
+            <i class="icon icon-spike comment-bubble" style="display: inline;left: 33px;"></i>
+            <div class="comment-list">
+              {% for comment in question.comments %}
+              <div class="item-comment">
+                <div class="comment-content-wrap">
+                  <div class="comment-hd">
+                    <a href="{{ url_for('.profile', username=comment.get_replier().username)}}">{{ comment.get_replier().nickname }}</a>
+                    {% if comment.reply == True %}
+                    <span style="font-size: 12px;">回复</span>
+                    <a href="{{ url_for('.profile', username=comment.get_replied().username)}}">{{ comment.get_replied().nickname }}</a>
+                    {% endif %}
+                  </div>
+                  <div class="comment-content">{{ comment.content }}</div>
+                  <div class="comment-ft">
+                    <span class="date">{{ comment.create_time.strftime('%Y-%m-%d') }}</span>
+                    <a class="comment-op-link" data-toggle="collapse" href="#questionReply">回复</a>
+                  </div>
+                  <div class=" collapse comment-form expanded" id="questionReply">
+                    <form action="{{ url_for('.comment_question', q_id=question.id, u_id=comment.replier_id) }}" method="post">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                      <input class="comment-editable" name="comment-content" placeholder="写下你的评论" style="width: 480px;" />
+                      <div style="padding-top: 10px;">
+                        <button class="btn btn-primary" id="submit" type="submit">评论</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="comment-form comment-box-ft expanded">
+              <form action="{{ url_for('.comment_question', q_id=question.id) }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <input class="comment-editable" name="comment-content" placeholder="写下你的评论" />
+                <div style="padding-top: 10px;">
+                  <button class="btn btn-primary" id="submit" type="submit">评论</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>  
+      </div>
+      <div class="answers" id="answers">
+        {% for answer in answers %}
+        <div class="answer" data-aid="{{ answer.id }}">
+          <div class="votebar goog-scrollfloater">
+            {% if status[answer.id] == 1 %}
+            <button class="up pressed" title="取消赞同">
+              <i class="icon vote-arrow"></i>
+              <span class="count">{{ answer.agrees_count }}</span>
+              <span class="label sr-only">取消赞同</span>
+            </button>
+            {% else %}
+            <button class="up" title="赞同">
+              <i class="icon vote-arrow"></i>
+              <span class="count">{{ answer.agrees_count }}</span>
+              <span class="label sr-only">赞同</span>
+            </button>
+            {% endif %}
+            {% if status[answer.id] == -1 %}
+            <button class="down pressed" title="取消反对">
+              <i class="icon vote-arrow"></i>
+              <span class="label sr-only">取消反对</span>
+            </button>
+            {% else %}
+            <button class="down" title="反对，不会显示你的姓名">
+              <i class="icon vote-arrow"></i>
+              <span class="label sr-only">反对，不会显示你的姓名</span>
+            </button>
+            {% endif %}
+          </div>
+          <div class="answer-header">
+            <div class="answer-author-info">
+              <a class="item-link-avatar" href="{{ url_for('.profile', username=answer.author.username) }}" target="_blank">
+                <img class="list-avatar" src="{{ url_for('static', filename=answer.author.avatar_file) }}" />
+              </a>
+              <a href="{{ url_for('.profile', username=answer.author.username) }}">{{ answer.author.nickname }}</a>
+              <span>, {{ answer.author.self_introduction }}</span>
+            </div>
+          </div>
+          <div class="answer-content" style="">
+            {% if answer.content_html %}
+              {{ answer.content_html | safe }}
+            {% else %}
+              {{ answer.content }}
+            {% endif %}
+            {% if answer.author == user %}
+            <a class="edit-button" href="javascript:;" name="edit">修改</a>
+            {% endif %}
+          </div>
+          {% if answer.author == user %}
+          <div class="editable-editor-wrap" style="display:none">
+            <div class="editable-editor-outer">
+              <textarea id="edit-answer-content">{{ answer.content }}</textarea>
+            </div>
+          <div class="command">
+            <a class="command-cancel" href="javascript:;" name="cancel">取消</a>
+            <a class="btn-blue" href="javascript:;" name="save">发布</a>
+          </div>
+          </div>
+          {% endif %}
+          <div class="item-meta">
+            <div class="meta-panel">
+              <a class="answer-date-link" href="{{ url_for('.single_answer_page', q_id=question.id, a_id=answer.id) }}">
+              {% if answer.update_time %}
+              编辑于 {{ answer.update_time.strftime('%Y-%m-%d') }}
+              {% else %}
+              发布于 {{ answer.create_time.strftime('%Y-%m-%d') }}
+              {% endif %}
+              </a>
+              <a class="meta-item toggle-comment" data-toggle="collapse" href="#answerComment">
+                <i class="icon-comment"></i>
+                {% if answer.comments_count() == 0 %}
+                添加评论
+                {% else %}
+                {{ answer.comments_count() }}条评论
+                {% endif %}
+              </a>
+            </div>
+            <div class="collapse comment-app-holder" id="answerComment">
+              <div class="comment-box">
+                <i class="icon icon-spike" style="left: 112px;"></i>
+                <div class="comment-list">
+                  {% for comment in answer.comments %}
+                  <div class="item-comment">
+                    <div class="comment-content-wrap">
+                      <div class="comment-hd">
+                        <a href="{{ url_for('.profile', username=comment.get_replier().username)}}">{{ comment.get_replier().nickname }}</a>
+                        {% if comment.reply == True %}
+                        <span style="font-size: 12px;">回复</span>
+                        <a href="{{ url_for('.profile', username=comment.get_replied().username)}}">{{ comment.get_replied().nickname }}</a>
+                        {% endif %}
+                      </div>
+                      <div class="comment-content">{{ comment.content }}</div>
+                      <div class="comment-ft">
+                        <span class="date">{{ comment.create_time.strftime('%Y-%m-%d') }}</span>
+                        <a class="comment-op-link" data-toggle="collapse" href="#answerReply">回复</a>
+                      </div>
+                      <div class=" collapse comment-form expanded" id="answerReply">
+                        <form action="{{ url_for('.comment_answer', a_id=answer.id, u_id=comment.replier_id) }}" method="post">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                          <input class="comment-editable" name="comment-content" placeholder="写下你的评论" style="width: 480px;" />
+                          <div style="padding-top: 10px;">
+                            <button class="btn btn-primary" id="submit" type="submit">评论</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="comment-form comment-box-ft expanded">
+                  <form action="{{ url_for('.comment_answer', a_id=answer.id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <input class="comment-editable" name="comment-content" placeholder="写下你的评论" />
+                    <div style="padding-top: 10px;">
+                      <button class="btn btn-primary" id="submit" type="submit">评论</button>
+                    </div>
+                  </form>
+                </div>                
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="add-answer-form">
+        {% if current_user.have_an_answer(question) %}
+        <div class="answer-form-disabled-wrap">
+        一个问题你只能回答一次，但你可以对现有的回答进行修改
+        </div>
+        {% else %}
+        <div class="answer-author-info">{{ current_user.nickname }}</div>
+        <div class="answer-editor">
+          <form action="" method="post" role="form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="editable-answer-content">
+              <textarea id="answer-content" name="content" placeholder="写回答"></textarea>
+            </div>
+            <div class="command">
+              <button class="btn btn-primary" id="submit" type="submit">发布回答</button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="main-sidebar">
+    <div class="side-section">
+      {% if status['follow'] == True %}
+      <button class="follow-button unfollow btn-white">取消关注</button>
+      {% else %}
+      <button class="follow-button follow btn-green">关注问题</button>
+      {% endif %}      
+    </div>
+  </div>
+</div>
+{% include '_questionForm.html' %}
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+var question_id = "{{ question.id }}";
+var question_title = "{{ question.title }}";
+var answer_id = $(".answer").has(".editable-editor-field-wrap").attr("data-aid");
+var csrftoken = $("meta[name=csrf-token]").attr("content");
+</script>
+{% endblock %}

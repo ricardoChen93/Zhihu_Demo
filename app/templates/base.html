@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  {% block head %}
+  <meta charset="utf-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}{% endblock title %}</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',
+  filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+  {% endblock head %}
+</head>
+<body class="zhi">
+<div class="top" role="navigation">
+  <div class="top-inner">
+    <a class="top-link-logo" href="{{ url_for('main.index') }}">知乎</a>
+    {% if current_user.is_authenticated %}
+    <div class="top-nav-profile" id="dpmenu">
+      <a class="top-nav-userinfo" href="#">
+        <span class="name">{{ current_user.nickname }}</span>
+        <img class="Avatar" src="{{ url_for('static', filename=current_user.avatar_file) }}" />
+      </a>
+      <ul class="top-nav-dropdown">
+        <li><a href="{{ url_for('main.profile', username=current_user.username) }}">我的主页</a></li>
+        <li><a href="#">私信</a></li>
+        <li><a href="#">设置</a></li>
+        <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
+      </ul>
+    </div>
+    {% else %}
+    <ul class="top-nav-noauth clearfix">
+      <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span>注册知乎</a></li>
+      <li><a href="{{ url_for('auth.login') }}">登录</a></li>
+    </ul>
+    {% endif %}
+    <button type="button" class="top-add-question" data-toggle="modal" data-target="#AddQuestion">提问</button>
+    <div class="top-search" role="search">
+      <form class="top-search-form" action="{{ url_for('main.search') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input name="type" value="content" type="hidden" />
+        <input class="top-search-input" name="conditions" placeholder="搜索你感兴趣的内容" type="text" />
+        <button class="top-search-button" type="submit">
+          <span class="sprite-global-icon-search"></span>
+        </button>
+      </form>
+    </div>
+    <div class="top-nav">
+      <ul class="top-nav-ul">
+        <li id="home" class="top-nav-li">
+        <a class="top-nav-link" href="{{ url_for('main.index') }}">首页</a>
+        </li>
+        <li id="topic" class="top-nav-li">
+        <a class="top-nav-link" href="#">话题</a>
+        </li>
+        <li id="explore" class="top-nav-li">
+        <a class="top-nav-link" href="{{ url_for('main.explore') }}">发现</a>
+        </li>
+        <li class="top-nav-li">
+        <a class="top-nav-link" href="#">消息</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% block page_content %}{% endblock page_content %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+// Add Markdown Editor
+var add_question = new SimpleMDE({ element: document.getElementById("question-content") });
+var add_answer = new SimpleMDE({ element: document.getElementById("answer-content") });
+var edit_question = new SimpleMDE({ element: document.getElementById("edit-question-content") });
+var edit_answer = new SimpleMDE({ element: document.getElementById("edit-answer-content") });
+</script>
+<script src="{{ url_for('static', filename='js/base.js') }}"></script>
+{% endblock scripts %}
+</body>
+</html>

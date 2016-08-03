@@ -1,0 +1,44 @@
+<div class="modal fade" id="AddQuestion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <span class="modal-title" id="myModalLabel">提问</span>
+      </div> 
+      <div class="modal-body">
+        <div class="zh-add-question-form">
+          <form class="js-add-question-form" style="display: block;" action="{{ url_for('main.add_question') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="zg-section-big clearfix">
+              <div id="zm-modal-dialog-info-wrapper"></div>
+              <div class="zg-form-text-input add-question-title-form" style="position: relative;">
+                <textarea class="zg-editor-input zu-seamless-input-origin-element" id="title" name="title" required placeholder="写下你的问题" style="height: 44px;"></textarea>
+              </div>
+              <div id="zh-question-suggest-ac-wrap" class="question-suggest-ac-wrap"></div>
+            </div>
+            <div class="zg-section-big">
+              <div class="add-question-section-title">
+                <p>问题说明（可选）：</p>
+              </div>
+              <div class="editable-question-content">
+                <textarea id="question-content" name="content"></textarea>
+              </div>
+            </div>
+            <!-- Topic-selector
+            <div class="add-question-form-topic">
+              <div class="add-question-section-title">选择话题：</div>
+              <div class="tag-editor">
+                <input type="text" id="question-topics" name="topics" />
+              </div>
+            </div>
+            -->
+            <div class="zm-command">
+              <button class="btn btn-default" data-dismiss="modal">取消</button>
+              <button class="btn btn-primary" id="submit" type="submit">发布</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.nickname }} 提过的问题-知乎{% endblock %}
+{% block page_content %}
+<div class="main clearfix">
+  <div class="main-content">
+    <div class="main-content-inner">
+    {% include '_profileCard.html' %}
+      <div class="profile-section profile-ask-page">
+        <div class="profile-section-head">
+          <span class="profile-section-name">
+            <a href="{{ url_for('.profile', username=user.username) }}">{{ user.nickname }}</a>
+            的提问
+          </span>
+          <a href="{{ url_for('.profile', username=user.username) }}" style="float:right;">返回个人主页</a>
+        </div>
+        <div class="profile-section-list">
+        {% for question in questions %}
+          <div class="profile-section-item">
+            <span class="profile-vote-count">
+              <div class="profile-vote-num">100</div>
+              <div class="profile-vote-type">浏览</div>
+            </span>
+            <div class="profile-section-main">
+              <div class="profile-question">
+                <a target="_blank" href="{{ url_for('.question_page', id=question.id) }}">{{ question.title }}</a>
+              </div>
+              <div class="profile-section-meta">
+                <span>{{ question.answers_count() }}个回答 </span>
+                <span>{{ question.followers_count() }}人关注</span>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include '_profileSideBar.html' %}
+</div>
+{% endblock %}

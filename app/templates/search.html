@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}搜索结果-知乎{% endblock %}
+{% block page_content %}
+<div class="main clearfix">
+  <div class="main-content">
+    <div class="main-content-inner">
+      <div class="search-tabs">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#">内容</a></li>
+          <li><a href="#">用户</a></li>
+          <li><a href="#">话题</a></li>
+        </ul>
+      </div>
+      <div class="range-selector"></div>
+      {% if questions == [] %}
+      <div class="empty-result">
+        <p>
+          非常抱歉，没有找到相关的内容。
+          <br />
+          你可以尝试修改搜索内容或添加一个新的问题。
+        </p>
+      </div>
+      {% else %}
+      <ul class="list-questions">
+        {% for question in questions %}
+        <li class="item clearfix">
+          <div class="title">
+            <a href="{{ url_for('.question_page', id=question.id) }}">{{ question.title }}</a>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% include '_questionForm.html' %}
+{% endblock %}

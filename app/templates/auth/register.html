@@ -1,0 +1,57 @@
+{% import 'bootstrap/wtf.html' as wtf %}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>知乎 - 与世界分享你的知识、经验和见解</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static',
+  filename='css/zhihu_auth.css') }}">
+</head>
+<body class="zhi">
+<div class="index-main">
+  <div class="index-main-body">
+    <div class="index-header">
+      <h1 class="logo hide-text">知乎</h1>
+      <h2 class="subtitle">与世界分享你的知识、经验和见解</h2>
+    </div>
+
+    <div class="desk-front sign-flow clearfix sign-flow-simple">
+      <div class="index-tab-navs">
+        <div class="navs-slider">
+          <a class="active">注册</a>
+          <a href="{{ url_for('auth.login') }}">登录</a>
+        </div>
+      </div>
+
+      <div class="view view-signup selected" data-za-module="SignUpForm">
+        <form action="" method="post">
+          {{ form.hidden_tag() }}
+          {{ wtf.form_errors(form, hiddens='True') }}
+          <div class="group-inputs">
+            <div class="name input-wrapper">
+              <label class="sr-only" for="nickname">姓名</label>
+              <input id="nickname" name="nickname" required type="text" placeholder="姓名">
+            </div>
+            <div class="email input-wrapper">
+              <label class="sr-only" for="email">电子邮箱</label>
+              <input id="email" name="email" required type="text" placeholder="电子邮箱">
+            </div>
+            <div class="input-wrapper">
+              <label class="sr-only" for="password">设置密码</label>
+              <input id="password" name="password" required type="password" placeholder="设置密码">
+            </div>
+          </div>
+          <div class="button-wrapper command">
+            <button class="sign-button submit" type="submit">注册知乎</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
+</html>

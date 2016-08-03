@@ -1,0 +1,12 @@
+Flask==0.11.1
+Flask-Bootstrap==3.3.6.0
+Flask-Login==0.3.2
+Flask-Mail==0.9.1
+Flask-Migrate==1.8.0
+Flask-SQLAlchemy==2.1
+Flask-Script==2.0.5
+Flask-WTF==0.12
+Markdown==2.6.6
+PyMySQL==0.7.5
+html2text==2016.5.29
+pypinyin==0.12.1

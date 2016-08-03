@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.nickname }} 答过的问题-知乎{% endblock %}
+{% block page_content %}
+<div class="main clearfix">
+  <div class="main-content">
+    <div class="main-content-inner">
+    {% include '_profileCard.html' %}
+      <div class="profile-section profile-answer-page">
+        <div class="profile-section-head">
+          <span class="profile-section-name">
+            <a href="{{ url_for('.profile', username=user.username) }}">{{ user.nickname }}</a>
+            的回答
+          </span>
+          <div class="profile-section-sort">
+            <label>排序方式：</label>
+            {% if order_by == 'created' %}
+            <a class="gray-normal" href="{{ url_for('.profile_answer', username=user.username, order_by='vote_num') }}">赞同数</a>
+            <span class="zg-bull">|</span>
+            <a href="{{ url_for('.profile_answer', username=user.username, order_by='created') }}">回答时间</a>
+            {% else %}
+            <a href="{{ url_for('.profile_answer', username=user.username, order_by='vote_num') }}">赞同数</a>
+            <span class="zg-bull">|</span>
+            <a class="gray-normal" href="{{ url_for('.profile_answer', username=user.username, order_by='created') }}">回答时间</a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="profile-section-list">
+        {% for answer in answers %}
+          <div class="profile-section-item">
+            <div class="profile-vote-count">
+              <div class="profile-vote-num">{{ answer.agrees_count }}</div>
+              <div class="profile-vote-type">赞同</div>
+            </div>
+            <div class="profile-section-main">
+              <div class="profile-question">
+                <a target="_blank" href="{{ url_for('.question_page', id=answer.question_id) }}">{{ answer.get_question().title }}</a>
+              </div>
+              <p class="profile-item-text">{{ answer.get_summary() }}</p>
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include '_profileSideBar.html' %}
+</div>
+{% include '_questionForm.html' %}
+{% endblock %}

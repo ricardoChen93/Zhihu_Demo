@@ -1,0 +1,46 @@
+<div class="profile-header ProfileCard">
+  <div class="profile-header-main">
+    <div class="title-section ellipsis">
+      <span class="name">{{ user.nickname }}</span>
+      ,
+      <span>{{ user.self_introduction }}</span>
+    </div>
+    <div class="body clearfix">
+      <div class="ProfileAvatarEditor">
+        <img class="Avatar" src="{{ url_for('static', filename=user.avatar_file) }}" style="width: 100px;height: 100px;border-radius: 4px;" alt="{{ user.nickname }}" />
+      </div>
+    </div>
+  </div>
+  <div class="profile-header-operation zg-clear">
+    <div class="profile-header-info-list">
+      <span class="profile-header-info-title">获得</span>
+      <span class="profile-header-user-agree">
+        <strong>{{ user.calculate_total_agrees() }}</strong>
+        赞同
+      </span>
+    </div>
+    {% if status['visit'] == True %}
+      {% if status['follow'] == True %}
+        <form action="{{ url_for('.unfollow_user', id=user.id) }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button class="btn btn-default">取消关注</button>
+        </form>
+      {% else %}
+        <form action="{{ url_for('.follow_user', id=user.id) }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button class="btn btn-success">关注他</button>
+        </form>  
+      {% endif %}              
+    {% else %}
+      <a class="profile-header-user-edit-btn btn-white" href="#">编辑我的资料</a>
+    {% endif %}
+  </div>
+  <div class="profile-navbar clearfix">
+    <a class="item home first" href="{{ url_for('.profile', username=user.username) }}">
+      <i class="icon icon-profile-tab-home"></i>
+      <span class="hide-text">主页</span>
+    </a>
+    <a class="item" href="{{ url_for('.profile_question', username=user.username) }}">提问 <span class="num">{{ user.questions_count() }}</span></a>
+    <a class="item" href="{{ url_for('.profile_answer', username=user.username) }}">回答 <span class="num">{{ user.answers_count() }}</span></a>
+  </div>
+</div>
