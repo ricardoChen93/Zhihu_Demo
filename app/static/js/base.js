@@ -191,4 +191,26 @@ $(function() {
       });
     };
   });
+
+  /*首页加载更多*/
+  var count = parseInt($("#home-feed-list").attr("data-count"));
+  var counter = 0;
+  var start = 10;
+  var size = 5;
+  $("#zh-load-more").click(function() {
+    offset = start + counter * size;
+    $.ajax({
+      type: "GET",
+      url: "/api/HomeFeedList/",
+      data: { "offset": offset, "count": count },
+      success: function(response) {
+        $("#home-feed-list").append(response);
+        if (offset + size >= count) {
+          $("#zh-load-more").hide();
+        }
+      }
+    })
+    counter ++;
+  });
+
 });

@@ -11,9 +11,11 @@ from flask_migrate import Migrate, MigrateCommand
 from app.models import User, Question, Answer, Topic, Feed
 from app.auth.views import create_username
 
+
 app = create_app(os.getenv('ZHIHU_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Question=Question,

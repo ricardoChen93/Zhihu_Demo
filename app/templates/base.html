@@ -14,10 +14,12 @@
 <body class="zhi">
 <div class="top" role="navigation">
   <div class="top-inner">
+    {% cache 300, 'top', 'logo' %}
     <a class="top-link-logo" href="{{ url_for('main.index') }}">知乎</a>
+    {% endcache %}
     {% if current_user.is_authenticated %}
     <div class="top-nav-profile" id="dpmenu">
-      <a class="top-nav-userinfo" href="#">
+      <a class="top-nav-userinfo" href="{{ url_for('main.profile', username=current_user.username) }}">
         <span class="name">{{ current_user.nickname }}</span>
         <img class="Avatar" src="{{ url_for('static', filename=current_user.avatar_file) }}" />
       </a>
@@ -34,6 +36,7 @@
       <li><a href="{{ url_for('auth.login') }}">登录</a></li>
     </ul>
     {% endif %}
+    {% cache 300, 'top', 'nav' %}
     <button type="button" class="top-add-question" data-toggle="modal" data-target="#AddQuestion">提问</button>
     <div class="top-search" role="search">
       <form class="top-search-form" action="{{ url_for('main.search') }}" method="post">
@@ -61,6 +64,7 @@
         </li>
       </ul>
     </div>
+    {% endcache %}
   </div>
 </div>
 {% block page_content %}{% endblock page_content %}

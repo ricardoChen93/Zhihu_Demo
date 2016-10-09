@@ -9,15 +9,18 @@
         最新动态
       </div>
       <div class="main-feed-con">
-        <div id="home-feed-list" class="general-list clearfix">
+        <div id="home-feed-list" class="general-list clearfix" data-count="{{ count }}">
           {% for feed in feeds %}
           <div class="feed-item">
+            {% cache 300, feed.id, 'avatar' %}
             <div class="avatar">
               <a class="item-link-avatar" target="_blank" href="{{ url_for('.profile', username=current_user.username) }}">
                 <img class="item-image-avatar" src="{{ url_for('static', filename=feed.user.avatar_file) }}" />
               </a>
             </div>
+            {% endcache %}
             <div class="feed-main">
+              {% cache 300, feed.id, 'action' %}
               <div class="feed-source">
                 <a href="{{ url_for('.profile', username=feed.user.username) }}" target="_blank">{{ feed.user.nickname }}</a>
                 {% if feed.action == 'ask_question' %}
@@ -29,8 +32,9 @@
                 {% elif feed.action == 'answer_question' %}
                 回答了该问题
                 {% endif %}
-                <span class="time">{{ feed.timestamp.strftime('%Y-%m-%d') }}</span>
+                <span class="time">{{ feed.display_time() }}</span>
               </div>
+              {% endcache %}
               <div class="feed-content">
                 <div class="feed-content-title">
                   <a class="question_link" target="_blank" href="{{ url_for('.question_page', id=feed.question.id) }}">{{ feed.question.title }}</a>
@@ -62,6 +66,12 @@
           </div>
           {% endfor %}
         </div>
+        <!-- 加载更多 -->
+        {% if load_more == True %}
+        <div>
+          <a href="javascript:;" id="zh-load-more" class="btn-white button-more">加载更多</a>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>

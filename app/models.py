@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import hashlib
+import operator
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from flask import current_app, request, url_for
@@ -146,7 +147,8 @@ class User(UserMixin, db.Model):
                 feeds = Feed.query.filter_by(user_id=j.followed_id).all()
                 for k in feeds:
                     total_feeds.append(k)
-        return total_feeds
+        sorted_feeds = sorted(total_feeds, key=operator.attrgetter('timestamp'))
+        return sorted_feeds
 
     def can_modify_answer(self, answer):
         return answer.author_id == self.id
@@ -294,3 +296,14 @@ class Feed(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
     answer_id = db.Column(db.Integer, db.ForeignKey('answers.id'))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.now)
+
+    def display_time(self):
+        td = datetime.now() - self.timestamp
+        if td.days >= 1:
+            return u'%s 天前' % td.days
+        elif td.seconds >= 3600:
+            return u'%s 小时前' % (td.seconds // 3600)
+        elif td.seconds >= 60:
+            return u'%s 分钟前' % (td.seconds // 60)
+        else:
+            return u'%s 秒前' % td.seconds       

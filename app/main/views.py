@@ -7,9 +7,10 @@ from datetime import datetime
 from flask import render_template, url_for, redirect, \
     flash, request, abort
 from flask_login import current_user, login_required
+from flask_cache import make_template_fragment_key
 from . import main
 from .forms import AddQuestionForm, AddAnswerForm
-from .. import db
+from .. import db, cache, api
 from ..models import User, Question, Answer, UserOnAnswer, \
     UserOnUser, Comment, Feed, QuestionLog
 
@@ -19,8 +20,16 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))
     user = current_user._get_current_object()
-    feeds = user.get_feeds()
-    return render_template('index.html', feeds=feeds)
+    context = api.feeds.get_context()
+    count = context.get('count')
+    if count > 10:
+        load_more = True
+        feeds = context.get('feeds')[:10]
+    else:
+        load_more = False
+        feeds = context.get('feeds')
+    return render_template('index.html', feeds=feeds, count=count,
+                            load_more=load_more)
 
 
 @main.route('/people/<username>', methods=['GET', 'POST'])
