@@ -9,6 +9,7 @@ from flask_wtf.csrf import CsrfProtect
 from flask_cache import Cache
 from config import config
 
+# 使用redis缓存页面
 cache_config = {
     'CACHE_TYPE': 'redis',
     'CACHE_REDIS_URL': 'redis://localhost:6379/1'
@@ -25,6 +26,8 @@ login_manager.login_view = 'auth.login'
 
 
 def create_app(config_name):
+    """创建Flask实例并初始化
+    """
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)

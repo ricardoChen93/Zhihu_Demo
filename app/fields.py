@@ -2,6 +2,8 @@ from wtforms import widgets, Field
 
 
 class TopicListField(Field):
+    """话题列表选择, 待添加
+    """
     widget = widgets.TextInput()
 
     def _value(self):

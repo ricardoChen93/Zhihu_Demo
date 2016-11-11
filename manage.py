@@ -26,6 +26,7 @@ manager.add_command('db', MigrateCommand)
 manager.add_command('shell', Shell(make_context=make_shell_context))
 
 
+# 初次添加数据，已弃用，请使用initial.sql
 @manager.command
 def deploy():
     db.drop_all()
@@ -45,11 +46,10 @@ def deploy():
              ('ln@example.com', u'李楠', 'password'),
              ('mby@example.com', u'马伯庸', 'password'),
              ('xdr@example.com', u'笑道人', 'password'),
-             ('xxmj@example.com', u'谢熊猫君', 'password')
-            ]
+             ('xxmj@example.com', u'谢熊猫君', 'password')]
     for user in users:
-        u = User(email=user[0], 
-                 nickname=user[1], 
+        u = User(email=user[0],
+                 nickname=user[1],
                  password=user[2])
         u.username = create_username(u.nickname)
         db.session.add(u)
@@ -83,9 +83,9 @@ def deploy():
                                 content_html=a_html)
                 db.session.add(answer)
                 db.session.commit()
-                feed1 = Feed(user=users[0], 
-                            action="ask_question", 
-                            question=question)
+                feed1 = Feed(user=users[0],
+                             action="ask_question",
+                             question=question)
                 feed2 = Feed(user=users[0],
                              action="answer_question",
                              question=question,
@@ -104,9 +104,9 @@ def deploy():
                                     content_html=q_html)
                 db.session.add(question)
                 db.session.commit()
-                feed1 = Feed(user=asker, 
-                            action="ask_question", 
-                            question=question)
+                feed1 = Feed(user=asker,
+                             action="ask_question",
+                             question=question)
                 db.session.add(feed1)
                 db.session.commit()
                 answerers = users[:]
