@@ -7,7 +7,7 @@ from datetime import datetime
 from flask import render_template, url_for, redirect, \
     flash, request, abort
 from flask_login import current_user, login_required
-from flask_cache import make_template_fragment_key
+from flask_caching import make_template_fragment_key
 from . import main
 from .forms import AddQuestionForm, AddAnswerForm
 from .. import db, cache, api

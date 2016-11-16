@@ -22,8 +22,10 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('ZHIHU_TEST_URI')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('ZHIHU_TEST_URI') or \
+        'mysql+pymysql://db_user:db_passwd@localhost/zhihu_test'
     WTF_CSRF_ENABLED = False
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 
 class ProductionConfig(Config):

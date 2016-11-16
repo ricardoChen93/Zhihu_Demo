@@ -21,6 +21,10 @@
 
 DROP DATABASE IF EXISTS `zhihu_dev`;
 CREATE DATABASE `zhihu_dev`;
+DROP DATABASE IF EXISTS `zhihu_test`;
+CREATE DATABASE `zhihu_test`;
+DROP DATABASE IF EXISTS `zhihu`;
+CREATE DATABASE `zhihu`;
 USE `zhihu_dev`;
 
 DROP TABLE IF EXISTS `alembic_version`;

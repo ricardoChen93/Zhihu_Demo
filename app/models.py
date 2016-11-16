@@ -14,6 +14,8 @@ from . import db, login_manager
 
 class UserOnUser(db.Model):
     """用户关注
+    @follower_id, 关注者id
+    @followed_id, 被关注用户id
     """
     __tablename__ = 'user_on_user'
 
@@ -50,6 +52,8 @@ class User(UserMixin, db.Model):
     @username, 用户昵称, 可以相同
     @nickname, 用户标识名, 唯一
     @avatar_file, 用户头像路径
+    @followers, 关注我的人
+    @followed, 我关注的人
     """
     __tablename__ = 'users'
 
@@ -88,6 +92,28 @@ class User(UserMixin, db.Model):
     question_log = db.relationship(
         'QuestionLog', backref='user', lazy='dynamic')
 
+    @staticmethod
+    def generate_fake(count=100):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed
+        from app.auth.views import create_username
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            nickname = forgery_py.name.full_name()
+            username = create_username(nickname)
+            u = User(email=forgery_py.internet.email_address(),
+                     nickname=nickname, username=username,
+                     password=forgery_py.lorem_ipsum.word(),
+                     member_since=forgery_py.date.date(True),
+                     self_introduction=forgery_py.lorem_ipsum.words())
+            db.session.add(u)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -106,11 +132,15 @@ class User(UserMixin, db.Model):
         return total_agrees
 
     def followers_count(self):
-        followers = UserOnUser.query.filter_by(followed_id=self.id).all()
+        followers = UserOnUser.query.filter(db.and_(
+            UserOnUser.followed_id == self.id,
+            UserOnUser.follow == True)).all()
         return len(followers)
 
     def followed_count(self):
-        followed = UserOnUser.query.filter_by(follower_id=self.id).all()
+        followed = UserOnUser.query.filter(db.and_(
+            UserOnUser.follower_id == self.id,
+            UserOnUser.follow == True)).all()
         return len(followed)
 
     def follow_user(self, user):
@@ -214,6 +244,24 @@ class Question(db.Model):
     logs = db.relationship(
         'QuestionLog', backref='question', lazy='dynamic')
 
+    @staticmethod
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+
+        seed()
+        user_count = User.query.count()
+        user_id = 19550225
+        for i in range(count):
+            u = User.query.offset(randint(0, user_count - 1)).first()
+            q = Question(user=u, id=user_id,
+                         title=forgery_py.lorem_ipsum.sentence(),
+                         content=forgery_py.lorem_ipsum.sentences(randint(1, 3)),
+                         create_time=forgery_py.date.date(True))
+            user_id += randint(1, 4)
+            db.session.add(q)
+            db.session.commit()
+
     def answers_count(self):
         return len(self.answers.all())
 
@@ -282,7 +330,7 @@ class Answer(db.Model):
 
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
-            target.content_html = markdown(value, output_format='html')
+        target.content_html = markdown(value, output_format='html')
 
 # 修改Answer.id的初始值
 db.event.listen(
@@ -326,6 +374,7 @@ class UserOnAnswer(db.Model):
     @vote_up_timestamp, 赞同时间戳, 取消后赞同时间戳不更新
     """
     __tablename__ = 'user_on_answer'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     answer_id = db.Column(db.Integer, db.ForeignKey('answers.id'))

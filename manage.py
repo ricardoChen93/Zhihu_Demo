@@ -2,6 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os
+COV = None
+if os.environ.get('FLASK_COVERAGE'):
+    import coverage
+    COV = coverage.coverage(branch=True, include='app/*')
+    COV.start()
+
 import cPickle as pk
 from html2text import html2text
 from random import choice, randint
@@ -24,6 +30,29 @@ def make_shell_context():
 manager.add_command('run', Server())
 manager.add_command('db', MigrateCommand)
 manager.add_command('shell', Shell(make_context=make_shell_context))
+
+
+# 添加test命令来运行coverage
+@manager.command
+def test(coverage=False):
+    """Run the unit tests."""
+    if coverage and not os.environ.get('FLASK_COVERAGE'):
+        import sys
+        os.environ['FLASK_COVERAGE'] = '1'
+        os.execvp(sys.executable, [sys.executable] + sys.argv)
+    import unittest
+    tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner(verbosity=2).run(tests)
+    if COV:
+        COV.stop()
+        COV.save()
+        print('Coverage Summary:')
+        COV.report()
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        covdir = os.path.join(basedir, 'tmp/coverage')
+        COV.html_report(directory=covdir)
+        print('HTML version: file//%s/index.html' % covdir)
+        COV.erase()
 
 
 # 初次添加数据，已弃用，请使用initial.sql
@@ -95,7 +124,8 @@ def deploy():
             else:
                 q_html = infos[i]['detail']
                 title = infos[i]['title']
-                prev_question = Question.query.order_by(Question.id.desc()).first()
+                prev_question = Question.query.order_by(
+                    Question.id.desc()).first()
                 id_plus = randint(1, 4)
                 question_id = prev_question.id + id_plus
                 asker = choice(users)
@@ -130,7 +160,7 @@ def deploy():
         except Exception:
             continue
         i += 1
-        print u'第%s个问题已收录' % i
+        print(u'第%s个问题已收录' % i)
 
 
 if __name__ == '__main__':

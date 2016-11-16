@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CsrfProtect
-from flask_cache import Cache
+from flask_caching import Cache
 from config import config
 
 # 使用redis缓存页面

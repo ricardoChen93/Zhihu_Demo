@@ -47,7 +47,10 @@ def logout():
 
 # 新用户标识名生成
 def create_username(nickname):
-    char = lazy_pinyin(re.split(r'\s+', nickname))
+    try:
+        char = lazy_pinyin(re.split(r'\s+', nickname))
+    except AssertionError:
+        char = re.split(r'\s+', nickname)
     username = '-'.join(char)
     user = User.query.filter_by(username=username).first()
     suffix = 1

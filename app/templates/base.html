@@ -5,13 +5,14 @@
   <meta charset="utf-8">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}{% endblock title %}</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/simplemde/1.11.2/simplemde.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static',
   filename='css/style.css') }}">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
   {% endblock head %}
 </head>
 <body class="zhi">
+<a href="https://github.com/ricardoChen93/Zhihu_Demo" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 30;" src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
 <div class="top" role="navigation">
   <div class="top-inner">
     {% cache 300, 'top', 'logo' %}
@@ -68,10 +69,16 @@
   </div>
 </div>
 {% block page_content %}{% endblock page_content %}
+<div class="footer">
+  <div style="text-align:center;">
+    <p>本站仅起演示作用，如有疑问请联系我</p>
+    <p>ricardo.chensdu@gmail.com</p>
+  </div>
+</div>
 {% block scripts %}
 <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/simplemde/1.11.2/simplemde.min.js"></script>
 <script>
 // Add Markdown Editor
 var add_question = new SimpleMDE({ element: document.getElementById("question-content") });
