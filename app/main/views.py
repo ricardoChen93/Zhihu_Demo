@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import re
-from random import randint, sample
+from random import randint
 from datetime import datetime
+from sqlalchemy.sql.expression import func
 from flask import render_template, url_for, redirect, \
     flash, request, abort
 from flask_login import current_user, login_required
@@ -12,7 +13,8 @@ from . import main
 from .forms import AddQuestionForm, AddAnswerForm
 from .. import db, cache, api
 from ..models import User, Question, Answer, UserOnAnswer, \
-    UserOnUser, Comment, Feed, QuestionLog
+    UserOnUser, Comment, Feed, QuestionLog, Notification, \
+    UserOnQuestion
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -23,7 +25,7 @@ def index():
         return redirect(url_for('auth.login'))
     user = current_user._get_current_object()
 
-    # 推送消息从api获取， 默认获取10条
+    # 推送主页动态从api获取， 默认获取10条
     context = api.feeds.get_context()
     count = context.get('count')
     if count > 10:
@@ -107,11 +109,22 @@ def question_page(id):
                         content=form.content.data)
         db.session.add(answer)
         db.session.commit()
+
         feed = Feed(user_id=user.id,
-                    action="answer_question",
+                    action='answer_question',
                     question_id=question.id,
                     answer_id=answer.id)
         db.session.add(feed)
+
+        u_on_q = UserOnQuestion.query.filter_by(question_id=id)
+        if u_on_q:
+            for item in u_on_q:
+                notification = Notification(fuser_id=user.id,
+                                            tuser_id=item.user_id,
+                                            action='answer_question',
+                                            question_id=question.id,
+                                            answer_id=answer.id)
+                db.session.add(notification)
         return redirect(url_for('main.question_page', id=id))
 
     return render_template('question.html', form=form,
@@ -157,18 +170,27 @@ def agree_answer(a_id):
     else:
         u_on_a.vote = 1
     db.session.add_all([answer, u_on_a])
-    db.session.commit()
 
-    # 确认是否推送消息，防止重复推送
+    # 确认是否推送主页动态，防止重复推送
     feed = Feed.query.filter(db.and_(
                 Feed.user == user, Feed.answer == answer,
-                Feed.action == "voteup_answer")).first()
+                Feed.action == 'voteup_answer')).first()
     if feed is None:
         feed = Feed(user_id=user.id,
-                    action="voteup_answer",
+                    action='voteup_answer',
                     question_id=answer.question.id,
                     answer_id=answer.id)
         db.session.add(feed)
+
+    # 推送消息给答案作者
+    if u_on_a is None:
+        notification = Notification(fuser_id=user.id,
+                                    tuser_id=answer.author_id,
+                                    action='voteup_answer',
+                                    question_id=answer.question.id,
+                                    answer_id=answer.id)
+        db.session.add(notification)
+    db.session.commit()
 
     return redirect(request.referrer)
 
@@ -230,7 +252,7 @@ def cancel_vote(a_id):
 @main.route('/add-question', methods=['POST'])
 @login_required
 def add_question():
-    """添加新问题并推送消息
+    """添加新问题并推送主页动态
     """
     form = AddQuestionForm()
     if form.validate_on_submit():
@@ -253,7 +275,7 @@ def add_question():
             db.session.commit()
         user.follow_question(question)
         feed = Feed(user_id=user.id,
-                    action="ask_question",
+                    action='ask_question',
                     question_id=question.id)
         db.session.add(feed)
         return redirect(url_for('main.question_page', id=question.id))
@@ -297,11 +319,7 @@ def edit_answer(id):
 def explore():
     """发现页，随机展示问题，待修改
     """
-    questions = Question.query.all()
-    if len(questions) <= 5:
-        random_questions = questions
-    else:
-        random_questions = sample(questions, 5)
+    random_questions = Question.query.order_by(func.rand()).limit(5)
     return render_template('explore.html', questions=random_questions)
 
 
@@ -346,10 +364,10 @@ def follow_question(id):
     # 检查当前用户是否曾经关注过该问题，防止重复推送
     feed = Feed.query.filter(db.and_(
                 Feed.user == user, Feed.question == question,
-                Feed.action == "follow_question")).first()
+                Feed.action == 'follow_question')).first()
     if feed is None:
         feed = Feed(user_id=user.id,
-                    action="follow_question",
+                    action='follow_question',
                     question_id=question.id)
         db.session.add(feed)
 
@@ -375,6 +393,13 @@ def follow_user(id):
     """
     user = User.query.get_or_404(id)
     current_user.follow_user(user)
+
+    # 推送消息给被关注用户
+    notification = Notification(fuser_id=current_user.id,
+                                tuser_id=id,
+                                action='follow_user')
+    db.session.add(notification)
+    db.session.commit()
     return redirect(request.referrer)
 
 

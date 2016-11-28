@@ -12,6 +12,3 @@ PyMySQL==0.7.5
 html2text==2016.5.29
 pypinyin==0.12.1
 redis==2.10.5
-coverage==4.2
-selenium==3.0.1
-forgerypy==0.1

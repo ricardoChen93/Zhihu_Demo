@@ -10,6 +10,7 @@ $(function() {
     $("#explore").addClass("current");
   };
 
+  var csrftoken = $('[name="csrf-token"]').attr('content');
   $.ajaxSetup({
     beforeSend: function(xhr, settings) {
       if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
@@ -192,25 +193,104 @@ $(function() {
     };
   });
 
-  /*首页加载更多*/
-  var count = parseInt($("#home-feed-list").attr("data-count"));
-  var counter = 0;
-  var start = 10;
-  var size = 5;
+  /*加载更多主页动态*/
+  var feed_counter = 0;
+  var feed_start = 10;
+  var feed_size = 5;
   $("#zh-load-more").click(function() {
-    offset = start + counter * size;
+    var feed_count = parseInt($("#home-feed-list").attr("data-count"));
+    var offset = feed_start + feed_counter * feed_size;
     $.ajax({
       type: "GET",
       url: "/api/HomeFeedList/",
-      data: { "offset": offset, "count": count },
+      data: { "offset": offset, "count": feed_count },
       success: function(response) {
         $("#home-feed-list").append(response);
-        if (offset + size >= count) {
+        if (feed_offset + feed_size >= feed_count) {
           $("#zh-load-more").hide();
         }
       }
     })
-    counter ++;
+    feed_counter ++;
   });
+
+  /*获取导航栏消息*/
+  var get_notifications = function() {
+    $.get("/api/notification/nav/")
+      .success(function(response) {
+        var count = response["not_read_count"];
+        if (count != 0) { 
+          $("#zh-top-nav-count").text(count);
+        }
+        $("#popover-noti-content").append(response["noti_html"]);
+        $("#popover-noti-content").attr("data-count", response["count"]);
+      });
+  };
+  get_notifications();
+
+  /*发现页换一批*/
+  $("#explore-random").click(function() {
+    $.ajax({
+      type: "GET",
+      url: "/api/RandomQuestions",
+      success: function(data) {
+        $("a.question_link").each(function(index) {
+          $(this).attr("href", data["question"][index]["link"]);
+          $(this).text(data["question"][index]["title"]);
+        });
+      }
+    })
+  });
+
+  /*导航栏消息弹窗*/
+  var noti_click_counter = 1;
+  var noti_counter = 0;
+  var noti_start = 10;
+  var noti_size = 5;
+  var scrollTimer = null;
+  $("#top-nav-notification")
+    .popover({
+      html: true,
+      content: function() {
+          return $('#popover-noti-content').html();
+        }
+    })
+    .click(function() {
+      if (noti_click_counter % 2 !== 0) {
+        $.ajax({
+          type: "POST",
+          url: "/api/notification/batch/",
+          success: function() {
+            $("#zh-top-nav-count").empty();
+          }
+        })
+        /*消息弹窗加载更多*/
+        $(".popover-content").scroll(function() {
+          if (scrollTimer) {
+            clearTimeout(scrollTimer);
+          }
+          scrollTimer = setTimeout(loadNotis, 500);
+        });
+
+        function loadNotis() {
+          scrollTimer = null;
+          if ($(".popover-content").scrollTop() + $(".popover-content").innerHeight() >= $(".popover-content")[0].scrollHeight) {
+            var noti_count = parseInt($("#popover-noti-content").attr("data-count"));
+            var offset = noti_start + noti_counter * noti_size;
+            $.ajax({
+              url: "/api/NotificationList/",
+              type: "GET",
+              data: { "offset": offset, "count": noti_count },
+              success: function(html) {
+                console.log(html);
+                $(".popover-content").append(html);
+              }
+            })
+            noti_counter ++;
+          }
+        };
+      }
+      noti_click_counter += 1;
+    })
 
 });

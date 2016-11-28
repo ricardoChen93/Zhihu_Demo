@@ -92,6 +92,32 @@ body.zhi {
 	padding: 0;
 	margin: 0;
 }
+.top-nav-count {
+	left: 31px;
+	z-index: 12;
+	top: 5px;
+	position: absolute;
+}
+.top-nav-count:empty {
+	display: none;
+}
+.noti-number {
+	background: #bf1031;
+	border: 1px solid #b11331;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1),inset 0 1px 0 rgba(255,255,255,.15);
+	color: #fff;
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	-webkit-text-size-adjust: none;
+	padding: 0 5px;
+	height: 16px;
+	line-height: 16px;
+	border-radius: 16px;
+	text-indent: 0;
+	text-align: center;
+	text-decoration: none;
+}
 .top-nav-dropdown li {
 	list-style: none;
 	margin: 0;
@@ -240,6 +266,21 @@ body.zhi {
 	float: left;
 	margin: 0;
 	list-style: none;
+}
+.top-nav-li .popover-content {
+	padding: 0px;
+	font-size: 13px;
+	height: 200px;
+	width: 300px;
+	overflow: auto;
+}
+.popover-content-item {
+	border-bottom: 1px solid #eee;
+	padding: 7px 11px;
+}
+.popover-content-item.unread {
+	background: #eff6fa;
+	border-bottom: 1px solid #d1e0e8;
 }
 .top-nav-link {
 	width: 54px;

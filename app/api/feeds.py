@@ -1,7 +1,7 @@
 from flask import render_template, request
 from flask_login import current_user
 from . import api
-from ..models import Feed
+from ..models import Feed, Notification
 
 
 def get_context():
@@ -13,6 +13,7 @@ def get_context():
         'count': count
     }
     return context
+
 
 @api.route('/HomeFeedList/')
 def send_feeds(size=5):

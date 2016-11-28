@@ -37,7 +37,11 @@
               {% endcache %}
               <div class="feed-content">
                 <div class="feed-content-title">
-                  <a class="question_link" target="_blank" href="{{ url_for('.question_page', id=feed.question.id) }}">{{ feed.question.title }}</a>
+                  {% if (feed.action == 'ask_question') or (feed.action == 'follow_question') %}
+                  <a class="question_link" target="_blank" href="{{ url_for('main.question_page', id=feed.question_id) }}">{{ feed.question.title }}</a>
+                  {% else %}
+                  <a class="question_link" target="_blank" href="{{ url_for('main.single_answer_page', q_id=feed.question_id, a_id=feed.answer_id) }}">{{ feed.question.title }}</a>
+                  {% endif %}
                 </div>
                 <div class="expandable entry-body">
                   {% if (feed.action == 'voteup_answer') or (feed.action == 'answer_question') %}

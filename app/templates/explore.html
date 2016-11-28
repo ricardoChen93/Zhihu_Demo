@@ -8,13 +8,13 @@
         <div id="recommend-title" class="page-title">
           <i class="icon icon-feedlist"></i>
           编辑推荐
-          <a href="#" style="float:right;color:#999;font-size:12px;">换一批</a>
+          <a id="explore-random" href="javascript:;" style="float:right;color:#999;font-size:12px;">换一批</a>
         </div>
         <div id="recommend-list">
           {% for question in questions %}
           <div class="recommend-feed feed-item">
             <div>
-              <a class="question_link" target="_blank" href="{{ url_for('.question_page', id=question.id) }}">{{ question.title }}</a>
+              <a class="question_link" target="_blank" href="{{ url_for('main.question_page', id=question.id) }}">{{ question.title }}</a>
             </div>
           </div>
           {% endfor %}

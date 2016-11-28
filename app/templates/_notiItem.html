@@ -1,0 +1,33 @@
+{% for param in params %}
+{% if param['read'] == 0 %}
+<div class="popover-content-item unread">
+{% else %}
+<div class="popover-content-item">
+{% endif %}
+	{% if param['action'] == 'answer_question' %}
+	<span>
+		<a class="author-link" href="{{ url_for('main.profile', username=param['user'].username) }}">
+			{{ param['user'].nickname }}
+		</a>
+	</span>
+	回答了
+	<a class="question_link" href="{{ url_for('main.single_answer_page', q_id=param['q_id'], a_id=param['a_id']) }}">{{ param['title'] }}</a>
+	{% elif param['action'] == 'follow_user' %}
+	<span>
+		<a class="author-link" href="{{ url_for('main.profile', username=param['user'].username) }}">
+			{{ param['user'].nickname }}
+		</a>
+	</span>
+	关注了你
+	{% elif param['action'] == 'voteup_answer' %}
+	获得1次赞同：
+	<a class="question_link" href="{{ url_for('main.single_answer_page', q_id=param['q_id'], a_id=param['a_id']) }}">{{ param['title'] }}</a>
+	来自
+	<span>
+		<a class="author-link" href="{{ url_for('main.profile', username=param['user'].username) }}">
+			{{ param['user'].nickname }}
+		</a>
+	</span>
+	{% endif %}
+</div>
+{% endfor %}

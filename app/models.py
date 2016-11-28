@@ -91,6 +91,8 @@ class User(UserMixin, db.Model):
         'Feed', backref='user', lazy='dynamic')
     question_log = db.relationship(
         'QuestionLog', backref='user', lazy='dynamic')
+    notifications = db.relationship(
+        'Notification', backref='user', lazy='dynamic')
 
     @staticmethod
     def generate_fake(count=100):
@@ -134,13 +136,13 @@ class User(UserMixin, db.Model):
     def followers_count(self):
         followers = UserOnUser.query.filter(db.and_(
             UserOnUser.followed_id == self.id,
-            UserOnUser.follow == True)).all()
+            UserOnUser.follow == 1)).all()
         return len(followers)
 
     def followed_count(self):
         followed = UserOnUser.query.filter(db.and_(
             UserOnUser.follower_id == self.id,
-            UserOnUser.follow == True)).all()
+            UserOnUser.follow == 1)).all()
         return len(followed)
 
     def follow_user(self, user):
@@ -383,7 +385,7 @@ class UserOnAnswer(db.Model):
 
 
 class Feed(db.Model):
-    """用户消息推送
+    """用户首页动态推送
     """
     __tablename__ = 'feeds'
 
@@ -404,3 +406,20 @@ class Feed(db.Model):
             return u'%s 分钟前' % (td.seconds // 60)
         else:
             return u'%s 秒前' % td.seconds
+
+
+class Notification(db.Model):
+    """消息
+    @fuser_id, 消息内容中的用户ID
+    @tuser_id, 接收消息的用户ID
+    """
+    __tablename__ = 'notifications'
+
+    id = db.Column(db.Integer, primary_key=True)
+    fuser_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    tuser_id = db.Column(db.Integer)
+    action = db.Column(db.String(64))
+    question_id = db.Column(db.Integer)
+    answer_id = db.Column(db.Integer)
+    read = db.Column(db.Boolean, default=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.now)

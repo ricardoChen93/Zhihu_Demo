@@ -52,18 +52,23 @@
     <div class="top-nav">
       <ul class="top-nav-ul">
         <li id="home" class="top-nav-li">
-        <a class="top-nav-link" href="{{ url_for('main.index') }}">首页</a>
+          <a class="top-nav-link" href="{{ url_for('main.index') }}">首页</a>
         </li>
         <li id="topic" class="top-nav-li">
-        <a class="top-nav-link" href="#">话题</a>
+          <a class="top-nav-link" href="#">话题</a>
         </li>
         <li id="explore" class="top-nav-li">
-        <a class="top-nav-link" href="{{ url_for('main.explore') }}">发现</a>
+          <a class="top-nav-link" href="{{ url_for('main.explore') }}">发现</a>
         </li>
         <li class="top-nav-li">
-        <a class="top-nav-link" href="#">消息</a>
+          <a id="top-nav-notification" class="top-nav-link" href="javascript:;" data-placement="bottom">
+            <span class="mobi-arrow"></span>
+            消息
+            <span id="zh-top-nav-count" class="top-nav-count noti-number"></span>
+          </a>
         </li>
       </ul>
+      <div id="popover-noti-content" class="hide" data-count=""></div>
     </div>
     {% endcache %}
   </div>

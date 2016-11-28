@@ -16,6 +16,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    TEMPLATES_AUTO_RELOAD = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('ZHIHU_DEV_URI') or \
         'mysql+pymysql://db_user:db_passwd@localhost/zhihu_dev'
 

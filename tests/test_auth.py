@@ -2,9 +2,22 @@
 
 import unittest
 from urlparse import urlparse
-from flask import url_for
+from contextlib import contextmanager
+from flask import url_for, template_rendered
 from app import create_app, db
 from app.models import User
+
+
+@contextmanager
+def captured_templates(app):
+    recorded = []
+    def record(sender, template, context, **extra):
+        recorded.append((template, context))
+    template_rendered.connect(record, app)
+    try:
+        yield recorded
+    finally:
+        template_rendered.disconnect(record, app)
 
 
 class FlaskClientTestCase(unittest.TestCase):
@@ -57,3 +70,11 @@ class FlaskClientTestCase(unittest.TestCase):
         expected_username = 'Jack-Smith-1'
         user = User.query.filter_by(email='jack@gmail.com').first()
         self.assertEqual(user.username, expected_username)
+
+    def test_template_render(self):
+        with captured_templates(self.app) as templates:
+            response = self.app.test_client().get(url_for('auth.login'))
+            template, context = templates[0]
+            self.assertEqual(template.name, 'auth/login.html')
+            #self.assertEqual(len(context['items']), 1)
+            print context
