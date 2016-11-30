@@ -21,7 +21,7 @@ from ..models import User, Question, Answer, UserOnAnswer, \
 def index():
     """首页, 如果用户未登录则跳转到登录界面
     """
-    if not current_user.is_authenticated:
+    if not current_user.is_active:
         return redirect(url_for('auth.login'))
     user = current_user._get_current_object()
 
@@ -469,7 +469,7 @@ def check_user_status(question, answers):
     """
     status = {}
     user = current_user._get_current_object()
-    if current_user.is_authenticated:
+    if current_user.is_active:
         f = user.user_on_question.filter_by(question_id=question.id).first()
         if f is None:
             status['follow'] = False
@@ -499,7 +499,7 @@ def check_profile_status(user):
     @status['follow'], 是否已关注被访问用户
     """
     status = {}
-    if current_user.is_authenticated:
+    if current_user.is_active:
         if current_user.username != user.username:
             status['visit'] = True
             f = UserOnUser.query.filter(db.and_(

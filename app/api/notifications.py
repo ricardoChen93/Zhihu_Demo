@@ -7,6 +7,8 @@ from ..models import Notification, Question
 
 
 def get_context():
+    if not current_user.is_active:
+        return None
     user = current_user._get_current_object()
     notifications = Notification.query.filter_by(
         tuser_id=user.id).order_by(Notification.timestamp.desc())
@@ -20,6 +22,8 @@ def recent_notifications(size=10):
     """获取最新消息
     """
     context = get_context()
+    if not context:
+        return jsonify(noti_html=None, count=0, not_read_count=0)
     not_read_count = context.get('notifications').filter_by(
         read=False).count()
     notis = context.get('notifications').limit(size)

@@ -92,3 +92,4 @@ ENV/
 migrations/
 tmp/
 uwsgi_config.ini
+flask.Flask.ipynb
